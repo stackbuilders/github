@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable, OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 -- | This module re-exports the @Github.Data.Definitions@ module, adding
 -- instances of @FromJSON@ to it. If you wish to use the data without the
@@ -366,6 +366,18 @@ instance FromJSON PullRequest where
         <*> o .: "title"
         <*> o .: "id"
   parseJSON _ = fail "Could not build a PullRequest"
+
+instance FromJSON Team where
+  parseJSON (Object o) = Team <$> o .: "id"
+                              <*> o .: "url"
+                              <*> o .: "name"
+                              <*> o .: "description"
+                              <*> o .: "permission"
+                              <*> o .: "members_url"
+                              <*> o .: "repositories_url"
+  parseJSON _ = fail "Could not parse team document"
+
+
 
 instance ToJSON EditPullRequestState where
   toJSON (EditPullRequestStateOpen) = String "open"
