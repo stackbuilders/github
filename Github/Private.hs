@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, StandaloneDeriving, DeriveDataTypeable #-}
+{-# LANGUAGE OverloadedStrings, StandaloneDeriving, DeriveDataTypeable, GADTs #-}
 {-# LANGUAGE CPP #-}
 module Github.Private where
 
@@ -57,6 +57,20 @@ githubPatch auth paths body =
             (Just auth)
             (Just body)
 
+githubPut :: (FromJSON b, Show b) => GithubAuth -> [String] -> IO (Either Error b)
+githubPut auth paths =
+  githubAPI (BS.pack "PUT")
+            (buildUrl paths)
+            (Just auth)
+            (Nothing :: Maybe Value)
+
+githubDelete :: (FromJSON b, Show b, b ~ DeleteResult) => GithubAuth -> [String] -> IO (Either Error DeleteResult)
+githubDelete auth paths =
+  githubAPI (BS.pack "DELETE")
+            (buildUrl paths)
+            (Just auth)
+            (Nothing :: Maybe Value)
+
 buildUrl :: [String] -> String
 buildUrl paths = "https://api.github.com/" ++ intercalate "/" paths
 
@@ -108,7 +122,7 @@ doHttps :: BS.ByteString
            -> [Char]
            -> Maybe GithubAuth
            -> Maybe RequestBody
-           -> IO (Either E.SomeException (Response LBS.ByteString))    
+           -> IO (Either E.SomeException (Response LBS.ByteString))
 doHttps reqMethod url auth body = do
   let reqBody = fromMaybe (RequestBodyBS $ BS.pack "") body
       reqHeaders = maybe [] getOAuth auth
@@ -139,7 +153,8 @@ doHttps reqMethod url auth body = do
     getOAuth (GithubOAuth token) = [(mk (BS.pack "Authorization"),
                                      BS.pack ("token " ++ token))]
     getOAuth _ = []
-    getResponse request = withManager $ \manager -> httpLbs request manager
+    getReply request = withManager $ \manager -> httpLbs request manager
+    getResponse = ensureBodyContents `dmap` getReply
 #if MIN_VERSION_http_conduit(1, 9, 0)
     successOrMissing s@(Status sci _) hs cookiejar
 #else
@@ -190,3 +205,12 @@ jsonResultToE jsonString result = case result of
 parseJson :: (FromJSON b, Show b) => LBS.ByteString -> Either Error b
 parseJson jsonString = either Left (jsonResultToE jsonString . fromJSON)
                               (parseJsonRaw jsonString)
+
+
+dmap :: (Functor f, Functor g) => (a -> b) -> f (g a) -> f (g b)
+dmap = fmap . fmap
+
+ensureBodyContents :: Response LBS.ByteString -> Response LBS.ByteString
+ensureBodyContents resp
+  | (responseBody resp) /= "" = resp
+  | otherwise = resp { responseBody = "[]" }

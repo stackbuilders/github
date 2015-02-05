@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable, StandaloneDeriving #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 
 module Github.Data.Definitions where
 
@@ -271,7 +271,7 @@ data EventType =
   | Referenced    -- ^ The issue was referenced from a commit message. The commit_id attribute is the commit SHA1 of where that happened.
   | Merged        -- ^ The issue was merged by the actor. The commit_id attribute is the SHA1 of the HEAD commit that was merged.
   | Assigned      -- ^ The issue was assigned to the actor.
-  | Closed        -- ^ The issue was closed by the actor. When the commit_id is present, it identifies the commit that closed the issue using “closes / fixes #NN” syntax. 
+  | Closed        -- ^ The issue was closed by the actor. When the commit_id is present, it identifies the commit that closed the issue using “closes / fixes #NN” syntax.
   | Reopened      -- ^ The issue was reopened by the actor.
   | ActorUnassigned    -- ^ The issue was unassigned to the actor
   | Labeled       -- ^ A label was added to the issue.
@@ -320,6 +320,16 @@ data Organization = Organization {
   ,organizationName :: Maybe String
   ,organizationId :: Int
 } deriving (Show, Data, Typeable, Eq, Ord)
+
+data Team = Team {
+    teamId              :: Int
+  , teamUrl             :: String
+  , teamName            :: String
+  , teamDescription     :: Maybe String
+  , teamPermission      :: String
+  , teamMembersUrl      :: String
+  , teamRepositoriesUrl :: String
+  } deriving (Show, Data, Typeable, Eq, Ord)
 
 data PullRequest = PullRequest {
    pullRequestClosedAt :: Maybe GithubDate
@@ -622,3 +632,9 @@ data EditPullRequestState =
     EditPullRequestStateOpen
   | EditPullRequestStateClosed
   deriving Show
+
+data AddToTeamResponse = AddedToTeam | InvitedToJoinTeam deriving (Show, Eq)
+
+data DeleteResult = Deleted | DeleteFailed deriving Show
+
+data PublicKey = PublicKey Int String deriving Show

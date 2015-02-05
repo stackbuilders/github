@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable, OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 -- | This module re-exports the @Github.Data.Definitions@ module, adding
 -- instances of @FromJSON@ to it. If you wish to use the data without the
@@ -367,6 +367,18 @@ instance FromJSON PullRequest where
         <*> o .: "id"
   parseJSON _ = fail "Could not build a PullRequest"
 
+instance FromJSON Team where
+  parseJSON (Object o) = Team <$> o .: "id"
+                              <*> o .: "url"
+                              <*> o .: "name"
+                              <*> o .: "description"
+                              <*> o .: "permission"
+                              <*> o .: "members_url"
+                              <*> o .: "repositories_url"
+  parseJSON _ = fail "Could not parse team document"
+
+
+
 instance ToJSON EditPullRequestState where
   toJSON (EditPullRequestStateOpen) = String "open"
   toJSON (EditPullRequestStateClosed) = String "closed"
@@ -682,6 +694,22 @@ instance FromJSON ContentData where
                 <*> o .: "git_url"
                 <*> o .: "html_url"
   parseJSON _ = fail "Could not build a ContentData"
+
+instance FromJSON AddToTeamResponse where
+  parseJSON (Object o) = case Map.lookup "state" o of
+    Just "active"  -> pure AddedToTeam
+    Just "pending" -> pure InvitedToJoinTeam
+    Just _         -> fail "Bad reply from Github: added users must be either active or pending"
+    Nothing        -> fail "No \"state\" field in add to team response"
+  parseJSON _      =  fail "Could not build AddToTeamResponse"
+
+instance FromJSON DeleteResult where
+  parseJSON (Array _) = pure Deleted
+  parseJSON _         = pure DeleteFailed
+
+instance FromJSON PublicKey where
+  parseJSON (Object o) = PublicKey <$> o .: "id" <*> o .: "key"
+  parseJSON _          = fail "Could not parse public keys from user"
 
 -- | A slightly more generic version of Aeson's @(.:?)@, using `mzero' instead
 -- of `Nothing'.
