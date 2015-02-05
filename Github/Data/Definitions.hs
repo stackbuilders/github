@@ -635,4 +635,6 @@ data EditPullRequestState =
 
 data AddToTeamResponse = AddedToTeam | InvitedToJoinTeam deriving (Show, Eq)
 
-data DeleteResult = Deleted | DeleteFailed deriving (Show)
+data DeleteResult = Deleted | DeleteFailed deriving Show
+
+data PublicKey = PublicKey Int String deriving Show

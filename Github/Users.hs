@@ -3,6 +3,7 @@
 module Github.Users (
  userInfoFor
 ,userInfoFor'
+,publicKeysForUser
 ,module Github.Data
 ) where
 
@@ -21,3 +22,6 @@ userInfoFor' auth userName = githubGet' auth ["users", userName]
 -- > userInfoFor "mike-burns"
 userInfoFor :: String -> IO (Either Error DetailedOwner)
 userInfoFor = userInfoFor' Nothing
+
+publicKeysForUser :: String -> Maybe GithubAuth -> IO (Either Error [PublicKey])
+publicKeysForUser username maybeAuth = githubGet' maybeAuth ["users", username, "keys"]

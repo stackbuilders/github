@@ -707,6 +707,10 @@ instance FromJSON DeleteResult where
   parseJSON (Array _) = pure Deleted
   parseJSON _         = pure DeleteFailed
 
+instance FromJSON PublicKey where
+  parseJSON (Object o) = PublicKey <$> o .: "id" <*> o .: "key"
+  parseJSON _          = fail "Could not parse public keys from user"
+
 -- | A slightly more generic version of Aeson's @(.:?)@, using `mzero' instead
 -- of `Nothing'.
 (.:<) :: (FromJSON a) => Object -> T.Text -> Parser [a]
