@@ -1,0 +1,6 @@
+language: haskell
+ghc:
+- 7.8
+env:
+  global:
+    secure: XaiGvQ805b4fTAA1Ma2m6wAd5N4rB0iVBGpS5ccrNUtzBhtNiatU5sCQFjX56H88Xi4/OqTBUOIBlSBTfoTeu0CZ4EbIEIhmxQqZtGzrONGC0ZZZnmXSPf0D1Bq2D+V1cqpbq7Ye084ADzYka+zOevQ6PFbSBsiniAKk9vjF3Go=

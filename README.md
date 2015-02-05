@@ -1,5 +1,6 @@
 Github
 ------
+[![Build Status](https://travis-ci.org/stackbuilders/github.svg?branch=add_specs)](https://travis-ci.org/stackbuilders/github)
 
 The Github API v3 for Haskell.
 
