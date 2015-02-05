@@ -695,6 +695,18 @@ instance FromJSON ContentData where
                 <*> o .: "html_url"
   parseJSON _ = fail "Could not build a ContentData"
 
+instance FromJSON AddToTeamResponse where
+  parseJSON (Object o) = case Map.lookup "state" o of
+    Just "active"  -> pure AddedToTeam
+    Just "pending" -> pure InvitedToJoinTeam
+    Just _         -> fail "Bad reply from Github: added users must be either active or pending"
+    Nothing        -> fail "No \"state\" field in add to team response"
+  parseJSON _      =  fail "Could not build AddToTeamResponse"
+
+instance FromJSON DeleteResult where
+  parseJSON (Array _) = pure Deleted
+  parseJSON _         = pure DeleteFailed
+
 -- | A slightly more generic version of Aeson's @(.:?)@, using `mzero' instead
 -- of `Nothing'.
 (.:<) :: (FromJSON a) => Object -> T.Text -> Parser [a]

@@ -632,3 +632,7 @@ data EditPullRequestState =
     EditPullRequestStateOpen
   | EditPullRequestStateClosed
   deriving Show
+
+data AddToTeamResponse = AddedToTeam | InvitedToJoinTeam deriving (Show, Eq)
+
+data DeleteResult = Deleted | DeleteFailed deriving (Show)
